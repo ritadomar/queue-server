@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const Entry = require('../models/Project.model');
+const Entry = require('../models/Entry.model');
 const mongoose = require('mongoose');
 
 // Create a new project

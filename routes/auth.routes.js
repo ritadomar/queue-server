@@ -1,56 +1,40 @@
-const express = require("express");
-const router = express.Router();
-
-// ℹ️ Handles password encryption
-const bcrypt = require("bcrypt");
-
-// ℹ️ Handles password encryption
-const jwt = require("jsonwebtoken");
-
-// Require the User model in order to interact with the database
-const User = require("../models/User.model");
-
-// Require necessary (isAuthenticated) middleware in order to control access to specific routes
-const { isAuthenticated } = require("../middleware/jwt.middleware.js");
+const router = require('express').Router();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User.model');
+const { isAuthenticated } = require('../middleware/jwt.middleware');
 
 // How many rounds should bcrypt run the salt (default - 10 rounds)
 const saltRounds = 10;
 
 // POST /auth/signup  - Creates a new user in the database
-router.post("/signup", (req, res, next) => {
-  const { name } = req.body;
+router.post('/signup', async (req, res, next) => {
+  const { name, isAdmin } = req.body;
 
-  // Check if email or password or name are provided as empty strings
-  if (name === "") {
-    res.status(400).json({ message: "Provide a name" });
-    return;
+  try {
+    if (name === '') {
+      return res.status(400).json({ message: 'All fields are mandatory' });
+    }
+
+    const userExists = await User.findOne({ name });
+
+    if (userExists) {
+      return res.status(400).json({
+        message: 'The provided name is already registered',
+      });
+    }
+
+    const newUser = await User.create({
+      name,
+      isAdmin
+    });
+
+    // sending the new user without the hashedPassword
+    res.json({ name: newUser.name, isAdmin: newUser.isAdmin, _id: newUser._id });
+  } catch (error) {
+    console.log('Error creating the user', error);
+    next(error);
   }
-
-  // Check the users collection if a user with the same name already exists
-  User.findOne({ name })
-    .then((foundUser) => {
-      // If the user with the same name already exists, send an error response
-      if (foundUser) {
-        res.status(400).json({ message: "User already exists." });
-        return;
-      }
-
-      // Create the new user in the database
-      // We return a pending promise, which allows us to chain another `then`
-      return User.create({ name });
-    })
-    .then((createdUser) => {
-      // Deconstruct the newly created user object to omit the password
-      // We should never expose passwords publicly
-      const { name, _id } = createdUser;
-
-      // Create a new object that doesn't expose the password
-      const user = { name, _id };
-
-      // Send a json response containing the user object
-      res.status(201).json({ user: user });
-    })
-    .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
 });
 
 // POST  /auth/login - Verifies email and password and returns a JWT
