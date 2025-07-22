@@ -14,10 +14,13 @@ const app = express();
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
 require("./config")(app);
 
+const { isAuthenticated } = require('./middleware/jwt.middleware');
+
 // 👇 Start handling routes here
 const indexRoutes = require("./routes/index.routes");
 app.use("/api", indexRoutes);
-
+const entriesRoutes = require('./routes/entries.routes');
+app.use('/api', isAuthenticated, entriesRoutes);
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);
 
