@@ -5,10 +5,11 @@ const mongoose = require('mongoose');
 // Create a new project
 router.post('/entries', async (req, res, next) => {
   const { userId } = req.body;
+  console.log(req.body, userId)
 
   try {
     const newEntry = await Entry.create({
-      entry: userId,
+      "entry": userId,
     });
 
     console.log('New entry', newEntry);
