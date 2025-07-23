@@ -15,6 +15,12 @@ const cors = require('cors')
 
 const FRONTEND_URL = process.env.ORIGIN || 'http://localhost:5173';
 
+const corsOptions = {
+  origin: [FRONTEND_URL],
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
+
 // Middleware configuration
 module.exports = (app) => {
   // Because this will be hosted on a server that will accept requests from outside and it will be hosted ona server with a `proxy`, express needs to know that it should trust that setting.
@@ -23,9 +29,7 @@ module.exports = (app) => {
 
   // controls a very specific header to pass headers from the frontend
   app.use(
-    cors({
-      origin: [FRONTEND_URL],
-    })
+    cors(corsOptions)
   );
 
   // In development environment the app logs
