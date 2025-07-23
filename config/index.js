@@ -11,7 +11,7 @@ const cookieParser = require("cookie-parser");
 
 // ℹ️ Needed to accept requests from 'the outside'. CORS stands for cross origin resource sharing
 // unless the request is made from the same domain, by default express wont accept POST requests
-const cors = require("cors");
+const cors = require('cors')
 
 const FRONTEND_URL = process.env.ORIGIN || "http://localhost:5173";
 
